@@ -1,2 +1,3 @@
-# subosity-serverless
-Serverless/Edge Functions that support the app.
+# Subosity Serverless
+
+Serverless/Edge Functions and database migrations that support the Supabase app.

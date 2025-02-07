@@ -1,0 +1,3 @@
+[build]
+include = ["index.ts", "version.txt"]
+exclude = []
