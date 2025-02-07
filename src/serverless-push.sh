@@ -36,7 +36,7 @@ function deploy_endpoint() {
     label=$1
     func_name=$2
     echo -e "${CYAN}[*] Deploying '${label}' function...${NC}"
-    npx supabase functions deploy "$func_name" --project-ref "$PROJECT_ID"
+    npx supabase functions deploy "$func_name" --project-ref $PROJECT_ID
     status=$?
     if [ $status -ne 0 ]; then
         echo -e "${RED}[-] Deployment of '${label}' failed with exit code ${status}${NC}"
