@@ -12,6 +12,8 @@ NC='\e[0m' # No Color
 : "${SUPABASE_ANON_KEY:?Environment variable SUPABASE_ANON_KEY is required}"
 : "${SUPABASE_URL:?Environment variable SUPABASE_URL is required}"
 
+echo "Using PROJECT_ID: $PROJECT_ID"
+
 VERSION=$(date +"%Y.%m%d.%H%M")
 export FUNCTION_VERSION=${VERSION}
 echo -e "${CYAN}[*] Setting new function version to: ${VERSION}...${NC}"
