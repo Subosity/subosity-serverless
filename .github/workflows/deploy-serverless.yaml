@@ -23,7 +23,7 @@ jobs:
           node-version: '20'
 
       - name: Install Supabase CLI
-        run: npm install -g supabase
+        run: npm install supabase --save-dev
 
       - name: Set up environment variables
         run: |
@@ -37,5 +37,5 @@ jobs:
       - name: Run serverless-push.sh
         run: |
           chmod +x ./serverless-push.sh
-          ./serverless-push.sh
+          npx supabase functions deploy
         working-directory: src
