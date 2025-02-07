@@ -30,9 +30,8 @@ jobs:
 
       - name: Create minimal supabase/config.toml
         run: |
-          mkdir -p supabase
-          echo "[project]" > supabase/config.toml
-          echo "ref = \"${{ secrets.PROJECT_ID }}\"" >> supabase/config.toml
+          mkdir -p src/supabase
+          echo "project_id = \"${{ secrets.PROJECT_ID }}\"" > src/supabase/config.toml
 
       - name: Change to src directory
         run: cd src
