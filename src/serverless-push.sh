@@ -1,9 +1,16 @@
 #!/bin/bash
 
+set -euo pipefail
+
 RED='\e[31m'
 CYAN='\e[36m'
 GREEN='\e[32m'
 NC='\e[0m' # No Color
+
+# Check required environment variables
+: "${PROJECT_ID:?Environment variable PROJECT_ID is required}"
+: "${SUPABASE_ANON_KEY:?Environment variable SUPABASE_ANON_KEY is required}"
+: "${SUPABASE_URL:?Environment variable SUPABASE_URL is required}"
 
 VERSION=$(date +"%Y.%m%d.%H%M")
 export FUNCTION_VERSION=${VERSION}
@@ -15,12 +22,15 @@ npx supabase secrets set --env-file ./version.env
 status=$?
 if [ $status -ne 0 ]; then
     echo -e "${RED}[-] Version update failed with exit code ${status}${NC}"
+    exit 1
 else
     echo -e "${GREEN}[+] Supabase function version updated successfully.${NC}"
 fi
 
 echo -e "${CYAN}[*] Running 'npx supabase functions deploy'...${NC}"
-source ./.env
+if [ -f ./.env ]; then
+  source ./.env
+fi
 
 function deploy_endpoint() {
     label=$1
@@ -30,6 +40,7 @@ function deploy_endpoint() {
     status=$?
     if [ $status -ne 0 ]; then
         echo -e "${RED}[-] Deployment of '${label}' failed with exit code ${status}${NC}"
+        exit 1
     else
         echo -e "${GREEN}[+] Supabase function: '${label}' deployed successfully.${NC}"
     fi
@@ -47,20 +58,22 @@ function test_endpoint() {
 
     echo -e "${CYAN}[*] Testing ${label}...${NC}"
     response=$(curl -s -L -X POST "${url}" \
-        -H "Authorization: Bearer ${VITE_SUPABASE_ANON_KEY}" \
+        -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
         -H "Content-Type: application/json" $TIMEOUT_FLAGS)
     status=$?
     if [ $status -ne 0 ]; then
         echo -e "${RED}[-] Request to '${label}' failed with exit code ${status}${NC}"
+        exit 1
     else
         echo -e "${GREEN}[+] Success.${NC}"
         echo "$response" | jq
     fi
 }
 
-test_endpoint "preprocess-notifications/healthcheck" "https://wzbdpxuzmpduherykuvj.supabase.co/functions/v1/preprocess-notifications/healthcheck"
-test_endpoint "process-notifications/healthcheck" "https://wzbdpxuzmpduherykuvj.supabase.co/functions/v1/process-notifications/healthcheck"
-test_endpoint "fetch-metadata/healthcheck" "https://wzbdpxuzmpduherykuvj.supabase.co/functions/v1/fetch-metadata/healthcheck"
-test_endpoint "fetch-metadata with domain parameter" "https://wzbdpxuzmpduherykuvj.supabase.co/functions/v1/fetch-metadata?domain=subosity.com"
+test_endpoint "preprocess-notifications/healthcheck" "${SUPABASE_URL}/functions/v1/preprocess-notifications/healthcheck"
+test_endpoint "process-notifications/healthcheck" "${SUPABASE_URL}/functions/v1/process-notifications/healthcheck"
+test_endpoint "fetch-metadata/healthcheck" "${SUPABASE_URL}/functions/v1/fetch-metadata/healthcheck"
+test_endpoint "fetch-metadata with domain parameter" "${SUPABASE_URL}/functions/v1/fetch-metadata?domain=subosity.com"
 
-
+echo -e "${CYAN}[*] Cleaning up temporary files...${NC}"
+rm -f ./version.env
