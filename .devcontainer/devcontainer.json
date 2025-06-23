@@ -1,0 +1,38 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/debian
+{
+	"name": "Supabase DinD",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"features": {},
+	"runArgs": [
+		"--privileged" // Required for DinD
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"supabase.supabase",
+				"esbenp.prettier-vscode",
+				"dbaeumer.vscode-eslint",
+				"bradlc.vscode-tailwindcss",
+				"Prisma.prisma",
+				"denoland.vscode-deno",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
+
+	"containerEnv": {
+		"SSH_AUTH_SOCK": "/tmp/ssh-agent.sock"
+	},
+
+	"mounts": [
+		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+		"source=${localEnv:HOME}/.gitconfig,target=/tmp/host-gitconfig,type=bind,consistency=cached,readonly"
+	],
+
+	"postCreateCommand": "chmod +x .devcontainer/setup-git.sh && .devcontainer/setup-git.sh && chmod +x .devcontainer/post-setup.sh && .devcontainer/post-setup.sh",
+
+	"remoteUser": "vscode"
+}
